@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/categories.dart';
+import '../models/grocery_item.dart';
 
 class NewGroceryView extends StatefulWidget {
   const NewGroceryView({super.key});
@@ -114,9 +115,14 @@ class _NewGroceryViewState extends State<NewGroceryView> {
 
     if (form != null && form.validate()) {
       form.save();
-      print(_name);
-      print(_quantity);
-      print(_category);
+      Navigator.pop(
+        context,
+        GroceryItem(
+            id: '${DateTime.now()}',
+            name: _name,
+            quantity: _quantity,
+            category: _category),
+      );
     }
   }
 }

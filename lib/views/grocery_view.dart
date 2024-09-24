@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../data/dummy_items.dart';
 import '../widgets/grocery_list_tile.dart';
 import 'new_grocery_view.dart';
 
-class GroceryView extends StatelessWidget {
+class GroceryView extends StatefulWidget {
   const GroceryView({super.key});
+
+  @override
+  State<GroceryView> createState() => _GroceryViewState();
+}
+
+class _GroceryViewState extends State<GroceryView> {
+  final groceryList = [];
 
   @override
   Widget build(context) {
@@ -14,20 +20,26 @@ class GroceryView extends StatelessWidget {
         title: const Text('Your Groceries'),
         actions: [
           IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NewGroceryView(),
-              ),
-            ),
+            onPressed: () async {
+              final newGroceryItem = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NewGroceryView()),
+              );
+
+              if (newGroceryItem != null) {
+                setState(() {
+                  groceryList.add(newGroceryItem);
+                });
+              }
+            },
             icon: const Icon(Icons.add_rounded),
           ),
         ],
       ),
       body: ListView.builder(
-        itemCount: groceryItems.length,
+        itemCount: groceryList.length,
         itemBuilder: (context, index) =>
-            GroceryListTile(groceryItem: groceryItems[index]),
+            GroceryListTile(groceryItem: groceryList[index]),
       ),
     );
   }
