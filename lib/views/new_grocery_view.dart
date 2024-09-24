@@ -12,6 +12,10 @@ class NewGroceryView extends StatefulWidget {
 class _NewGroceryViewState extends State<NewGroceryView> {
   final _formKey = GlobalKey<FormState>();
 
+  var _name = '';
+  var _quantity = 1;
+  var _category = categories.entries.first.value;
+
   @override
   Widget build(context) {
     return Scaffold(
@@ -35,13 +39,14 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                   }
                   return null;
                 },
+                onSaved: (value) => _name = value!,
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: TextFormField(
-                      initialValue: '1',
+                      initialValue: '$_quantity',
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(labelText: 'Quantity'),
                       validator: (value) {
@@ -54,15 +59,17 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                         }
                         return null;
                       },
+                      onSaved: (value) => _quantity = int.parse(value!),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: DropdownButtonFormField(
+                      value: _category,
                       items: [
                         for (final category in categories.entries)
                           DropdownMenuItem(
-                            value: category,
+                            value: category.value,
                             child: Row(
                               children: [
                                 Icon(
@@ -75,7 +82,7 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                             ),
                           ),
                       ],
-                      onChanged: (value) {},
+                      onChanged: (value) => _category = value!,
                     ),
                   ),
                 ],
@@ -85,7 +92,7 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _formKey.currentState!.reset,
+                    onPressed: () => _formKey.currentState!.reset(),
                     child: const Text('Rest'),
                   ),
                   const SizedBox(width: 16),
@@ -107,6 +114,9 @@ class _NewGroceryViewState extends State<NewGroceryView> {
 
     if (form != null && form.validate()) {
       form.save();
+      print(_name);
+      print(_quantity);
+      print(_category);
     }
   }
 }
