@@ -55,6 +55,20 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('Rest'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('Add item'),
+                  ),
+                ],
               )
             ],
           ),
