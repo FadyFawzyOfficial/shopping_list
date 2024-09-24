@@ -22,6 +22,16 @@ class _NewGroceryViewState extends State<NewGroceryView> {
               TextFormField(
                 maxLength: 50,
                 decoration: const InputDecoration(labelText: 'Name'),
+                validator: (value) {
+                  final valueTrimmedLength = value?.trim().length;
+                  if (value == null ||
+                      value.isEmpty ||
+                      valueTrimmedLength! <= 1 ||
+                      valueTrimmedLength > 50) {
+                    return 'Name must be 2 to 50 characters';
+                  }
+                  return null;
+                },
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -30,6 +40,16 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                     child: TextFormField(
                       initialValue: '1',
                       decoration: const InputDecoration(labelText: 'Quantity'),
+                      validator: (value) {
+                        final parsedQuantity = int.tryParse(value ?? '');
+                        if (value == null ||
+                            value.isEmpty ||
+                            parsedQuantity == null ||
+                            parsedQuantity <= 0) {
+                          return 'Must be a valid, positive number';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -64,6 +84,7 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                     onPressed: () {},
                     child: const Text('Rest'),
                   ),
+                  const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () {},
                     child: const Text('Add item'),
