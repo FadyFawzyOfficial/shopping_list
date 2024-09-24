@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_list/data/dummy_items.dart';
-import 'package:shopping_list/widgets/grocery_list_tile.dart';
+
+import '../data/dummy_items.dart';
+import '../widgets/grocery_list_tile.dart';
+import 'new_grocery_view.dart';
 
 class GroceryView extends StatelessWidget {
   const GroceryView({super.key});
@@ -8,7 +10,20 @@ class GroceryView extends StatelessWidget {
   @override
   Widget build(context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Your Groceries')),
+      appBar: AppBar(
+        title: const Text('Your Groceries'),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NewGroceryView(),
+              ),
+            ),
+            icon: const Icon(Icons.add_rounded),
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: groceryItems.length,
         itemBuilder: (context, index) =>
