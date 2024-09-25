@@ -67,10 +67,16 @@ class _GroceryViewState extends State<GroceryView> {
     setState(() => groceryList = loadedItems);
   }
 
-  void _addItem() {
-    Navigator.push(
+  Future<void> _addItem() async {
+    final groceryItem = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const NewGroceryView()),
     );
+
+    if (groceryItem != null) {
+      setState(() => groceryList.add(groceryItem));
+    }
   }
+
+  // _loadItems();
 }
