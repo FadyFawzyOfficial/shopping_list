@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../data/categories.dart';
-import '../models/grocery_item.dart';
 
 class NewGroceryView extends StatefulWidget {
   const NewGroceryView({super.key});
@@ -115,14 +117,28 @@ class _NewGroceryViewState extends State<NewGroceryView> {
 
     if (form != null && form.validate()) {
       form.save();
-      Navigator.pop(
-        context,
-        GroceryItem(
-            id: '${DateTime.now()}',
-            name: _name,
-            quantity: _quantity,
-            category: _category),
+      final url = Uri.https(
+        'max-shoppinglist-default-rtdb.europe-west1.firebasedatabase.app',
+        'shopping-list.json',
       );
+      http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'name': _name,
+          'quantity': _quantity,
+          'category': _category.name,
+        }),
+      );
+      // Navigator.pop(
+      //   context,
+      //   GroceryItem(
+      //     id: '${DateTime.now()}',
+      //     name: _name,
+      //     quantity: _quantity,
+      //     category: _category,
+      //   ),
+      // );
     }
   }
 }
