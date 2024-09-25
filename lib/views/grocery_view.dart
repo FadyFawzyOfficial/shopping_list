@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shopping_list/data/categories.dart';
-import 'package:shopping_list/models/grocery_item.dart';
 
+import '../constants.dart';
+import '../models/grocery_item.dart';
 import '../widgets/grocery_list_tile.dart';
 import 'new_grocery_view.dart';
 
@@ -52,10 +52,7 @@ class _GroceryViewState extends State<GroceryView> {
   }
 
   Future<void> _loadItems() async {
-    final url = Uri.https(
-      'max-shoppinglist-default-rtdb.europe-west1.firebasedatabase.app',
-      'shopping-list.json',
-    );
+    final url = Uri.https(baseUrl, shoppingListPath);
 
     final response = await http.get(url);
 
@@ -63,22 +60,11 @@ class _GroceryViewState extends State<GroceryView> {
     List<GroceryItem> loadedItems = [];
 
     for (final item in listData.entries) {
-      final category = categories.entries
-          .firstWhere(
-              (category) => category.value.name == item.value['category'])
-          .value;
-
-      loadedItems.add(GroceryItem(
-        id: item.key,
-        name: item.value['name'],
-        quantity: item.value['quantity'],
-        category: category,
-      ));
+      item.value['id'] = item.key;
+      loadedItems.add(GroceryItem.fromMap(item.value));
     }
 
-    setState(() {
-      groceryList = loadedItems;
-    });
+    setState(() => groceryList = loadedItems);
   }
 
   void _addItem() {
