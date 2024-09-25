@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -118,31 +120,26 @@ class _NewGroceryViewState extends State<NewGroceryView> {
     if (form != null && form.validate()) {
       form.save();
 
+      final groceryItem = GroceryItem(
+        name: _name,
+        quantity: _quantity,
+        category: _category,
+      );
+
       final url = Uri.https(baseUrl, shoppingListPath);
 
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: GroceryItem(
-          name: _name,
-          quantity: _quantity,
-          category: _category,
-        ).toJson(),
+        body: groceryItem.toJson(),
       );
 
-      debugPrint(response.body);
-      debugPrint('${response.statusCode}');
+      final String groceryItemId = json.decode(response.body)['name'];
 
-      Navigator.pop(context);
-      // Navigator.pop(
-      //   context,
-      //   GroceryItem(
-      //     id: '${DateTime.now()}',
-      //     name: _name,
-      //     quantity: _quantity,
-      //     category: _category,
-      //   ),
-      // );
+      Navigator.pop(
+        context,
+        groceryItem.copyWith(id: groceryItemId),
+      );
     }
   }
 }
