@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'category.dart';
 
 class GroceryItem {
-  final String id;
+  final String? id;
   final String name;
   final int quantity;
   final Category category;
 
   const GroceryItem({
-    required this.id,
+    this.id,
     required this.name,
     required this.quantity,
     required this.category,
@@ -17,7 +17,7 @@ class GroceryItem {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
+      if (id != null) 'id': id,
       'name': name,
       'quantity': quantity,
       'category': category.name,
@@ -26,9 +26,9 @@ class GroceryItem {
 
   factory GroceryItem.fromMap(Map<String, dynamic> map) {
     return GroceryItem(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      quantity: map['quantity'] as int,
+      id: map['id'],
+      name: map['name'],
+      quantity: map['quantity'],
       category: Category.fromName(map['category']),
     );
   }
