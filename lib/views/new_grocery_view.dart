@@ -112,7 +112,7 @@ class _NewGroceryViewState extends State<NewGroceryView> {
     );
   }
 
-  void _saveItem() {
+  Future<void> _saveItem() async {
     final form = _formKey.currentState;
 
     if (form != null && form.validate()) {
@@ -121,7 +121,7 @@ class _NewGroceryViewState extends State<NewGroceryView> {
         'max-shoppinglist-default-rtdb.europe-west1.firebasedatabase.app',
         'shopping-list.json',
       );
-      http.post(
+      final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
@@ -130,6 +130,11 @@ class _NewGroceryViewState extends State<NewGroceryView> {
           'category': _category.name,
         }),
       );
+
+      debugPrint(response.body);
+      debugPrint('${response.statusCode}');
+
+      Navigator.pop(context);
       // Navigator.pop(
       //   context,
       //   GroceryItem(
