@@ -15,6 +15,20 @@ class GroceryItem {
     required this.category,
   });
 
+  GroceryItem copyWith({
+    String? id,
+    String? name,
+    int? quantity,
+    Category? category,
+  }) {
+    return GroceryItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
+      category: category ?? this.category,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       if (id != null) 'id': id,
