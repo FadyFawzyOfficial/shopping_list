@@ -17,14 +17,6 @@ class GroceryView extends StatefulWidget {
 
 class _GroceryViewState extends State<GroceryView> {
   List<GroceryItem> groceryList = [];
-  var isLoading = true;
-  String? error;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadItems();
-  }
 
   @override
   Widget build(context) {
@@ -38,65 +30,60 @@ class _GroceryViewState extends State<GroceryView> {
           ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : error != null
-              ? Center(child: Text(error!))
-              : groceryList.isEmpty
-                  ? const Center(
-                      child:
-                          Text('You got no grocery item, start adding some!'),
-                    )
-                  : ListView.builder(
-                      itemCount: groceryList.length,
-                      itemBuilder: (context, index) {
-                        final groceryItem = groceryList[index];
-                        return GroceryListTile(
-                          groceryItem: groceryItem,
-                          onDismissed: () => _removeItem(groceryItem),
-                        );
-                      },
-                    ),
+      body: FutureBuilder(
+        future: _loadItems(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+
+          if (snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('You got no grocery item, start adding some!'),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final groceryItem = snapshot.data![index];
+              return GroceryListTile(
+                groceryItem: groceryItem,
+                onDismissed: () => _removeItem(groceryItem),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
-  Future<void> _loadItems() async {
+  Future<List<GroceryItem>> _loadItems() async {
     final url = Uri.https(baseUrl, shoppingListPath);
 
-    try {
-      final response = await http.get(url);
+    final response = await http.get(url);
 
-      if (response.statusCode >= 400) {
-        setState(() {
-          isLoading = false;
-          error = 'Failed to fetch data, please try again later.';
-        });
-        return;
-      }
-
-      if (response.body == 'null') {
-        setState(() => isLoading = false);
-        return;
-      }
-
-      Map<String, dynamic> listData = json.decode(response.body);
-      List<GroceryItem> loadedItems = [];
-
-      for (final item in listData.entries) {
-        item.value['id'] = item.key;
-        loadedItems.add(GroceryItem.fromMap(item.value));
-      }
-
-      setState(() {
-        groceryList = loadedItems;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        error = 'Something went wrong, please try again later.';
-      });
+    if (response.statusCode >= 400) {
+      throw Exception('Failed to fetch data, please try again later.');
     }
+
+    if (response.body == 'null') {
+      return [];
+    }
+
+    Map<String, dynamic> listData = json.decode(response.body);
+    List<GroceryItem> loadedItems = [];
+
+    for (final item in listData.entries) {
+      item.value['id'] = item.key;
+      loadedItems.add(GroceryItem.fromMap(item.value));
+    }
+
+    return loadedItems;
   }
 
   Future<void> _addItem() async {
