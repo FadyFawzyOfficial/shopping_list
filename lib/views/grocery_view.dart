@@ -17,6 +17,14 @@ class GroceryView extends StatefulWidget {
 
 class _GroceryViewState extends State<GroceryView> {
   List<GroceryItem> groceryList = [];
+  late Future<List<GroceryItem>> loadedItems;
+
+  @override
+  void initState() {
+    super.initState();
+    //! So I initialize it here.
+    loadedItems = _loadItems();
+  }
 
   @override
   Widget build(context) {
@@ -31,7 +39,11 @@ class _GroceryViewState extends State<GroceryView> {
         ],
       ),
       body: FutureBuilder(
-        future: _loadItems(),
+        //! if you call _loadItems() method here to get that future that will be
+        //! passed as a value to FutureBuilder, this function (_loadItems()) will
+        //! be re-executed every time the build method executes again.
+        //! So every time some state changes for example, or just save code
+        future: loadedItems,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
