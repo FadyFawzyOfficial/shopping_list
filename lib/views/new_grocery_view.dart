@@ -20,6 +20,7 @@ class _NewGroceryViewState extends State<NewGroceryView> {
   var _name = '';
   var _quantity = 1;
   var _category = categories.entries.first.value;
+  var _isSending = false;
 
   @override
   Widget build(context) {
@@ -97,13 +98,21 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => _formKey.currentState!.reset(),
+                    onPressed: _isSending
+                        ? null
+                        : () => _formKey.currentState!.reset(),
                     child: const Text('Rest'),
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: _saveItem,
-                    child: const Text('Add item'),
+                    onPressed: _isSending ? null : _saveItem,
+                    child: _isSending
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(),
+                          )
+                        : const Text('Add item'),
                   ),
                 ],
               )
@@ -119,6 +128,8 @@ class _NewGroceryViewState extends State<NewGroceryView> {
 
     if (form != null && form.validate()) {
       form.save();
+
+      setState(() => _isSending = true);
 
       final groceryItem = GroceryItem(
         name: _name,

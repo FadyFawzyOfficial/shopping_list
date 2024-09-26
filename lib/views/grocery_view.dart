@@ -17,6 +17,7 @@ class GroceryView extends StatefulWidget {
 
 class _GroceryViewState extends State<GroceryView> {
   List<GroceryItem> groceryList = [];
+  var isLoading = true;
 
   @override
   void initState() {
@@ -36,18 +37,20 @@ class _GroceryViewState extends State<GroceryView> {
           ),
         ],
       ),
-      body: groceryList.isEmpty
-          ? const Center(
-              child: Text('You got no grocery item, start adding some!'),
-            )
-          : ListView.builder(
-              itemCount: groceryList.length,
-              itemBuilder: (context, index) => GroceryListTile(
-                groceryItem: groceryList[index],
-                onDismissed: () =>
-                    setState(() => groceryList.remove(groceryList[index])),
-              ),
-            ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : groceryList.isEmpty
+              ? const Center(
+                  child: Text('You got no grocery item, start adding some!'),
+                )
+              : ListView.builder(
+                  itemCount: groceryList.length,
+                  itemBuilder: (context, index) => GroceryListTile(
+                    groceryItem: groceryList[index],
+                    onDismissed: () =>
+                        setState(() => groceryList.remove(groceryList[index])),
+                  ),
+                ),
     );
   }
 
@@ -64,7 +67,10 @@ class _GroceryViewState extends State<GroceryView> {
       loadedItems.add(GroceryItem.fromMap(item.value));
     }
 
-    setState(() => groceryList = loadedItems);
+    setState(() {
+      groceryList = loadedItems;
+      isLoading = false;
+    });
   }
 
   Future<void> _addItem() async {
