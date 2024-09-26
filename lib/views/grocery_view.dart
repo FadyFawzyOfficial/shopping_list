@@ -73,6 +73,11 @@ class _GroceryViewState extends State<GroceryView> {
       return;
     }
 
+    if (response.body == 'null') {
+      setState(() => isLoading = false);
+      return;
+    }
+
     Map<String, dynamic> listData = json.decode(response.body);
     List<GroceryItem> loadedItems = [];
 
