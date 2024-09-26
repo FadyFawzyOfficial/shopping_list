@@ -63,33 +63,40 @@ class _GroceryViewState extends State<GroceryView> {
   Future<void> _loadItems() async {
     final url = Uri.https(baseUrl, shoppingListPath);
 
-    final response = await http.get(url);
+    try {
+      final response = await http.get(url);
 
-    if (response.statusCode >= 400) {
+      if (response.statusCode >= 400) {
+        setState(() {
+          isLoading = false;
+          error = 'Failed to fetch data, please try again later.';
+        });
+        return;
+      }
+
+      if (response.body == 'null') {
+        setState(() => isLoading = false);
+        return;
+      }
+
+      Map<String, dynamic> listData = json.decode(response.body);
+      List<GroceryItem> loadedItems = [];
+
+      for (final item in listData.entries) {
+        item.value['id'] = item.key;
+        loadedItems.add(GroceryItem.fromMap(item.value));
+      }
+
+      setState(() {
+        groceryList = loadedItems;
+        isLoading = false;
+      });
+    } catch (e) {
       setState(() {
         isLoading = false;
-        error = 'Failed to fetch data, please try again later.';
+        error = 'Something went wrong, please try again later.';
       });
-      return;
     }
-
-    if (response.body == 'null') {
-      setState(() => isLoading = false);
-      return;
-    }
-
-    Map<String, dynamic> listData = json.decode(response.body);
-    List<GroceryItem> loadedItems = [];
-
-    for (final item in listData.entries) {
-      item.value['id'] = item.key;
-      loadedItems.add(GroceryItem.fromMap(item.value));
-    }
-
-    setState(() {
-      groceryList = loadedItems;
-      isLoading = false;
-    });
   }
 
   Future<void> _addItem() async {
