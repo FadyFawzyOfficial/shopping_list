@@ -49,11 +49,13 @@ class _GroceryViewState extends State<GroceryView> {
                     )
                   : ListView.builder(
                       itemCount: groceryList.length,
-                      itemBuilder: (context, index) => GroceryListTile(
-                        groceryItem: groceryList[index],
-                        onDismissed: () => setState(
-                            () => groceryList.remove(groceryList[index])),
-                      ),
+                      itemBuilder: (context, index) {
+                        final groceryItem = groceryList[index];
+                        return GroceryListTile(
+                          groceryItem: groceryItem,
+                          onDismissed: () => _removeItem(groceryItem),
+                        );
+                      },
                     ),
     );
   }
@@ -96,5 +98,20 @@ class _GroceryViewState extends State<GroceryView> {
     }
   }
 
-  // _loadItems();
+  Future<void> _removeItem(GroceryItem item) async {
+    final itemIndex = groceryList.indexOf(item);
+    setState(() => groceryList.remove(item));
+
+    final response =
+        await http.delete(Uri.https(baseUrl, deleteItem(item.id!)));
+
+    if (response.statusCode >= 400 && mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Failed to delete this item')),
+        );
+      setState(() => groceryList.insert(itemIndex, item));
+    }
+  }
 }
