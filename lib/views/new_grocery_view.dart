@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../constants.dart';
 import '../data/categories.dart';
 import '../models/grocery_item.dart';
 
@@ -16,6 +20,7 @@ class _NewGroceryViewState extends State<NewGroceryView> {
   var _name = '';
   var _quantity = 1;
   var _category = categories.entries.first.value;
+  var _isSending = false;
 
   @override
   Widget build(context) {
@@ -93,13 +98,21 @@ class _NewGroceryViewState extends State<NewGroceryView> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => _formKey.currentState!.reset(),
+                    onPressed: _isSending
+                        ? null
+                        : () => _formKey.currentState!.reset(),
                     child: const Text('Rest'),
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: _saveItem,
-                    child: const Text('Add item'),
+                    onPressed: _isSending ? null : _saveItem,
+                    child: _isSending
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(),
+                          )
+                        : const Text('Add item'),
                   ),
                 ],
               )
@@ -110,18 +123,33 @@ class _NewGroceryViewState extends State<NewGroceryView> {
     );
   }
 
-  void _saveItem() {
+  Future<void> _saveItem() async {
     final form = _formKey.currentState;
 
     if (form != null && form.validate()) {
       form.save();
+
+      setState(() => _isSending = true);
+
+      final groceryItem = GroceryItem(
+        name: _name,
+        quantity: _quantity,
+        category: _category,
+      );
+
+      final url = Uri.https(baseUrl, shoppingListPath);
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: groceryItem.toJson(),
+      );
+
+      final String groceryItemId = json.decode(response.body)['name'];
+
       Navigator.pop(
         context,
-        GroceryItem(
-            id: '${DateTime.now()}',
-            name: _name,
-            quantity: _quantity,
-            category: _category),
+        groceryItem.copyWith(id: groceryItemId),
       );
     }
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../data/categories.dart';
+
 enum Categories {
   vegetables,
   fruit,
@@ -21,4 +23,8 @@ class Category {
     this.name,
     this.color,
   );
+
+  factory Category.fromName(String name) => categories.entries
+      .firstWhere((category) => category.value.name == name)
+      .value;
 }
